@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyWith TAE's AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <header class="header">
+        <div class="brand">
+            <span class="brand-icon">✦</span>
+            <span>StudyWith TAE's AI</span>
+        </div>
+        <span class="status">Your learning companion</span>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="eyebrow">YOUR PERSONAL LEARNING PARTNER</p>
+            <h1>Learn anything.<br><span>Understand everything.</span></h1>
+            <p class="subtitle">
+                Explore topics, practise questions, and build your knowledge.
+            </p>
+        </section>
+
+        <section class="study-card">
+            <h2>What would you like to learn today?</h2>
+            <p class="card-description">
+                Enter a topic and choose your study mode.
+            </p>
+
+            <form method="POST" action="/">
+                <label for="topic">Your study topic</label>
+                <input type="text" id="topic" name="topic" placeholder="Try Geology or Python" value="{{ topic }}"
+                    maxlength="150" required>
+
+                <div class="options">
+                    <button type="submit" name="action" value="explain" class="option">
+                        <span class="option-icon">📚</span>
+                        <span class="option-title">Explain</span>
+                        <span class="option-description">
+                            Learn about a topic
+                        </span>
+                    </button>
+
+                    <button type="submit" name="action" value="quiz" class="option">
+                        <span class="option-icon">✍️</span>
+                        <span class="option-title">Quiz me</span>
+                        <span class="option-description">
+                            Test your knowledge
+                        </span>
+                    </button>
+
+                    <button type="submit" name="action" value="summarize" class="option">
+                        <span class="option-icon">📝</span>
+                        <span class="option-title">Summarize</span>
+                        <span class="option-description">
+                            Create revision notes
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {% if result %}
+        <section class="result-card">
+            <h2>Your study result</h2>
+            <div class="result-content">{{ result }}</div>
+        </section>
+        {% endif %}
+
+        {% if action == "quiz" and questions %}
+        <section class="result-card">
+            <h2>Interactive Quiz: {{ topic }}</h2>
+            <p class="card-description">
+                Select one answer for each question, then check your score.
+            </p>
+
+            <form id="quiz-form">
+                {% for question in questions %}
+                {% set question_index = loop.index0 %}
+                <fieldset class="quiz-question">
+                    <legend>
+                        {{ loop.index }}. {{ question.question }}
+                    </legend>
+
+                    {% for option in question.options %}
+                    <label class="quiz-option">
+                        <input type="radio" name="question_{{ question_index }}" value="{{ loop.index0 }}" required>
+                        {{ ["A", "B", "C", "D"][loop.index0] }}.
+                        {{ option }}
+                    </label>
+                    {% endfor %}
+                </fieldset>
+                {% endfor %}
+
+                <button type="submit" class="primary-button">
+                    Check my score
+                </button>
+            </form>
+
+            <div id="quiz-score" class="score-box" hidden></div>
+        </section>
+
+        <script>
+            const quizQuestions = {{ questions | tojson }};
+            const quizForm = document.getElementById("quiz-form");
+            const scoreBox = document.getElementById("quiz-score");
+
+
+            quizForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                let score = 0;
+                const total = quizQuestions.length;
+                const feedback = [];
+
+                quizQuestions.forEach(function (question, index) {
+                    const selected = quizForm.querySelector(
+                        'input[name="question_' + index + '"]:checked'
+                    );
+
+                    const correctIndex = Number(question.answer);
+                    const isCorrect = selected &&
+                        Number(selected.value) === correctIndex;
+
+                    if (isCorrect) {
+                        score++;
+                    }
+
+                    const correctOption = question.options[correctIndex];
+
+                    feedback.push(
+                        "Question " + (index + 1) + ": " +
+                        (isCorrect ? "Correct!" : "Not quite.") +
+                        " Correct answer: " + correctOption
+                    );
+                });
+
+                const percentage = total > 0
+                    ? Math.round((score / total) * 100)
+                    : 0;
+
+                scoreBox.hidden = false;
+                scoreBox.replaceChildren();
+
+                const heading = document.createElement("h3");
+                heading.textContent = "Your Results";
+                scoreBox.appendChild(heading);
+
+                const scoreText = document.createElement("p");
+                scoreText.textContent =
+                    "Your score: " + score + " out of " + total +
+                    " (" + percentage + "%)";
+                scoreBox.appendChild(scoreText);
+
+                const encouragement = document.createElement("p");
+
+                if (percentage >= 80) {
+                    encouragement.textContent =
+                        "Excellent work! You understand this topic very well. Keep it up!";
+                } else if (percentage >= 50) {
+                    encouragement.textContent =
+                        "Good effort! Review the answers below and keep practising.";
+                } else {
+                    encouragement.textContent =
+                        "Don't give up! Review the correct answers and try again.";
+                }
+
+                scoreBox.appendChild(encouragement);
+
+
+                feedback.forEach(function (message) {
+                    const item = document.createElement("p");
+                    item.textContent = message;
+                    scoreBox.appendChild(item);
+                });
+            });
+
+        </script>
+        {% endif %}
+
+        <footer>
+            <p>Built with curiosity and Python ❤️</p>
+            <p>StudyWith TAE's AI · AI Engineering Project 2026</p>
+        </footer>
+    </main>
+</body>
+
+</html>
