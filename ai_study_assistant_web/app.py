@@ -1,7 +1,10 @@
-
 from flask import Flask, render_template, request
 
+from database import initialize_database, save_study, get_study_history
+
 app = Flask(__name__)
+
+initialize_database()
 
 
 def explain_topic(topic):
@@ -196,6 +199,7 @@ def home():
 
         elif action == "explain":
             result = explain_topic(topic)
+            save_study(topic, action)
 
         elif action == "quiz":
             questions = create_quiz(topic)
@@ -205,9 +209,12 @@ def home():
                     f"No interactive quiz is available for {topic} yet.\n\n"
                     "Try Geology or Python for now."
                 )
+            else:
+                save_study(topic, action)
 
         elif action == "summarize":
             result = create_summary(topic)
+            save_study(topic, action)
 
         else:
             result = "Please select a valid study mode."
@@ -218,6 +225,16 @@ def home():
         topic=topic,
         action=action,
         questions=questions
+    )
+
+
+@app.route("/history")
+def study_history():
+    history = get_study_history()
+
+    return render_template(
+        "history.html",
+        history=history
     )
 
 

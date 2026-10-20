@@ -6,3 +6,6 @@ __pycache__/
 .venv/
 venv/
 secrets/
+# Local study history database
+ai_study_assistant_web/study_history.db
+ai_study_assistant_web/study_history.db-journal

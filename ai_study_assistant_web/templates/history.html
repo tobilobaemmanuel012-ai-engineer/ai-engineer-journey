@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Your Study History | StudyWith TAE's AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="brand">
+            <span class="brand-icon">📚</span>
+            <span>StudyWith TAE's AI</span>
+        </div>
+
+        <span class="status">Your learning journey</span>
+    </header>
+
+    <main class="container">
+
+        <section class="history-header">
+            <p class="eyebrow">YOUR PROGRESS</p>
+            <h1>Your Study History</h1>
+            <p>Review the topics you have studied and keep growing.</p>
+        </section>
+
+        <p>
+            <a class="history-link" href="{{ url_for('home') }}">
+                ← Back to Study Assistant
+            </a>
+        </p>
+
+        <section class="history-card">
+
+            <h2>Recent Study Sessions</h2>
+            <p class="card-description">
+                Your latest saved study activities.
+            </p>
+
+            {% if history %}
+
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Study Mode</th>
+                        <th>Date and Time</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in history %}
+                    <tr>
+                        <td>{{ item["topic"] }}</td>
+                        <td>{{ item["study_mode"]|title }}</td>
+                        <td>{{ item["studied_at"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+
+            <p class="empty-history">
+                You have no study history yet. Study a topic first!
+            </p>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>StudyWith TAE's AI</p>
+        <p>Learn consistently. Grow confidently.</p>
+    </footer>
+
+</body>
+
+</html>
